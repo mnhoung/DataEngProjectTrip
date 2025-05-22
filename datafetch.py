@@ -27,7 +27,7 @@ def load_vehicle_ids(csv_path):
 
 # Directory to save output
 timestamp = datetime.now(ZoneInfo("America/Los_Angeles")).strftime('%Y%m%d')
-OUTPUT_DIR = f"./trip_data_{timestamp}/"
+OUTPUT_DIR = f"../trip_data_{timestamp}/"
 
 # Ensure output directory exists
 os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -46,10 +46,6 @@ def fetch_breadcrumb_data(vehicle_id):
                 json.dump(data, f, indent=2)
 
             print(f"[✓] Saved data for vehicle {vehicle_id}")
-    except HTTPError as e:
-        print(f"[HTTPError] Vehicle {vehicle_id}: {e.code} {e.reason}")
-    except URLError as e:
-        print(f"[URLError] Vehicle {vehicle_id}: {e.reason}")
     except Exception as e:
         print(f"[Error] Vehicle {vehicle_id}: {e}")
 
@@ -57,7 +53,6 @@ def main():
     vehicle_ids = load_vehicle_ids(VEHICLE_ID_CSV)
     for vid in vehicle_ids:
         fetch_breadcrumb_data(vid)
-        time.sleep(0.5)  # Delay to avoid overloading the server
 
 if __name__ == "__main__":
     main()
