@@ -8,10 +8,10 @@ from urllib.request import urlopen
 from urllib.error import URLError, HTTPError
 
 # Base URL template
-BASE_URL = "https://busdata.cs.pdx.edu/api/getBreadCrumbs?vehicle_id={}"
+BASE_URL = "https://busdata.cs.pdx.edu/api/getStopEvents?vehicle_num={}"
 
 # Read vehicle IDs from a CSV file
-VEHICLE_ID_CSV = "/home/pjuyoung/term-project/vehicle_ids.csv"
+VEHICLE_ID_CSV = "/home/nhoung/DataEngProjectTrip/vehicle_ids.csv"
 
 def load_vehicle_ids(csv_path):
     vehicle_ids = []
@@ -27,7 +27,7 @@ def load_vehicle_ids(csv_path):
 
 # Directory to save output
 timestamp = datetime.now(ZoneInfo("America/Los_Angeles")).strftime('%Y%m%d')
-OUTPUT_DIR = f"./breadcrumb_data_{timestamp}/"
+OUTPUT_DIR = f"./trip_data_{timestamp}/"
 
 # Ensure output directory exists
 os.makedirs(OUTPUT_DIR, exist_ok=True)
