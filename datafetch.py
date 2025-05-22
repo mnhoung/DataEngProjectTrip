@@ -6,6 +6,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 from urllib.request import urlopen
 from urllib.error import URLError, HTTPError
+from bs4 import BeautifulSoup
 
 # Base URL template
 BASE_URL = "https://busdata.cs.pdx.edu/api/getStopEvents?vehicle_num={}"
@@ -36,8 +37,16 @@ def fetch_breadcrumb_data(vehicle_id):
     url = BASE_URL.format(vehicle_id)
     try:
         with urlopen(url) as response:
-            charset = response.headers.get_content_charset() or 'utf-8'
-            data = json.loads(response.read().decode(charset))
+            # charset = response.headers.get_content_charset() or 'utf-8'
+            # data = json.loads(response.read().decode(charset))
+            html = response.read().decode('utf-8')
+            soup = BeautifulSoup(html, "html.parser")
+            script_tag = soup.find('script', id='data-json')
+
+            if script_tag:
+                # Get the JSON string inside the script tag
+                json_text = script_tag.string.strip()
+                data = json.loads(json_text)
 
             # Timestamped filename
             timestamp = datetime.now(ZoneInfo("America/Los_Angeles")).strftime('%Y%m%d_%H%M%S')
