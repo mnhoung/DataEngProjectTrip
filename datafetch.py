@@ -72,7 +72,7 @@ def fetch_breadcrumb_data(vehicle_id):
             timestamp = datetime.now(ZoneInfo("America/Los_Angeles")).strftime('%Y%m%d_%H%M%S')
             filename = os.path.join(OUTPUT_DIR, f"vehicle_{vehicle_id}_{timestamp}.json")
             with open(filename, "w") as f:
-                json.dump(data, f, indent=2)
+                f.write(data)
 
             print(f"[✓] Saved data for vehicle {vehicle_id}")
     except Exception as e:
