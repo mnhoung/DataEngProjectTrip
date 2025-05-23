@@ -3,12 +3,13 @@ from data_publisher import DataPublisher
 
 def main():
     PROJECT_ID = "sp25-cs410-trimet-project"
-    TOPIC_ID = "trimet-topic"
-    SERVICE_ACCOUNT_FILE = "/home/pjuyoung/term-project/sp25-cs410-trimet-project-service-account.json"
-    VEHICLE_ID_CSV = "/home/pjuyoung/term-project/vehicle_ids.csv"
+    TOPIC_ID = "trip-topic"
+    HOME_DIR = "/home/nhoung/DataEngProjectTrip/"
+    SERVICE_ACCOUNT_FILE = HOME_DIR + "sp25-cs410-trimet-project-service-account.json"
+    VEHICLE_ID_CSV = HOME_DIR + "vehicle_ids.csv"
 
-    fetcher = DataFetcher(vehicle_csv_path=VEHICLE_ID_CSV)
-    publisher = DataPublisher(project_id=PROJECT_ID, topic_id=TOPIC_ID, service_account_file=SERVICE_ACCOUNT_FILE)
+    fetcher = DataFetcher(VEHICLE_ID_CSV)
+    publisher = DataPublisher(PROJECT_ID, TOPIC_ID, SERVICE_ACCOUNT_FILE)
 
     vehicle_ids = fetcher.load_vehicle_ids()
 
