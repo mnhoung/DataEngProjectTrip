@@ -1,5 +1,5 @@
-from data_fetcher import DataFetcher
-from data_publisher import DataPublisher
+from tripFetch import DataFetcher
+from tripPublish import DataPublisher
 
 def main():
     PROJECT_ID = "sp25-cs410-trimet-project"
