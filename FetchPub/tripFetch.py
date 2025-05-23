@@ -57,7 +57,7 @@ class DataFetcher:
                 
                 # drop NaN columns
                 df = df.dropna(axis=0, how='any')
-                data = df.to_dict()
+                data = df.to_dict(orient="records")
                 
                 print(f"[✓] Fetched data for vehicle {vehicle_id}")
                 return data

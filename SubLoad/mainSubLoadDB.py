@@ -3,9 +3,9 @@ from tripSubscribe import DataSubscriber
 def main():
     PROJECT_ID = "sp25-cs410-trimet-project"
     SUBSCRIPTION_ID = "trip-sub"
-    BASE_DIR = "/home/nhoung/DataEndProjectTrip/"
+    BASE_DIR = "/home/nhoung/DataEngProjectTrip/"
     SERVICE_ACCOUNT_FILE = BASE_DIR + "sp25-cs410-trimet-project-service-account.json"
-    OUTPUT_DIR = BASE_DIR + "recieved_data/"
+    OUTPUT_DIR = "/home/nhoung/recieved_data/"
     BATCH_SIZE = 10000
 
     subscriber = DataSubscriber(

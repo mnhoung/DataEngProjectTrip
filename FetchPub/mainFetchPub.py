@@ -14,7 +14,7 @@ def main():
     vehicle_ids = fetcher.load_vehicle_ids()
 
     for vid in vehicle_ids:
-        data = fetcher.fetch_breadcrumb_data(vid)
+        data = fetcher.fetch_trip_data(vid)
         if data:
             publisher.publish_data(data, vid)
 

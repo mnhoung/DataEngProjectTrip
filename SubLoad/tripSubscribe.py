@@ -60,6 +60,8 @@ class DataSubscriber:
             file.write("\n")
 
     def _load_to_db(self, triggered_by_timer=False):
+        print("No Load yet")
+        '''
         with self.lock:
             if self.message_list:
                 df = pd.DataFrame(self.message_list)
@@ -68,6 +70,7 @@ class DataSubscriber:
                 self.message_list = []
         if triggered_by_timer:
             self._start_timer()
+            '''
 
     def _start_timer(self):
         print("Starting 20 minute timer...")
