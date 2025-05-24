@@ -7,30 +7,22 @@ class DataTransformer:
     def transform(self, df):
         df = df.copy()
 
-        df['OPD_DATE'] = pd.to_datetime(df['OPD_DATE'], format='%d%b%Y:%H:%M:%S', errors='coerce')
-        df['ACT_TIME'] = pd.to_timedelta(df['ACT_TIME'], unit='s', errors='coerce')
-        df['tstamp'] = df['OPD_DATE'] + df['ACT_TIME']
+        # Only apply mapping and structural cleanup
+        df['service_key'] = df['service_key'].map({
+            'W': 'Weekday',
+            'S': 'Saturday',
+            'U': 'Sunday'
+        })
 
-        df = df.sort_values(by=['VEHICLE_ID', 'EVENT_NO_TRIP', 'tstamp'])
+        # Drop duplicate trip-vehicle pairs
+        df = df.drop_duplicates(subset=['trip_number', 'vehicle_number'])
 
-        df['PREV_METERS'] = df.groupby(['VEHICLE_ID', 'EVENT_NO_TRIP'])['METERS'].shift(1)
-        df['PREV_TIME'] = df.groupby(['VEHICLE_ID', 'EVENT_NO_TRIP'])['tstamp'].shift(1)
-        df['DELTA_METERS'] = df['METERS'] - df['PREV_METERS']
-        df['DELTA_SECONDS'] = (df['tstamp'] - df['PREV_TIME']).dt.total_seconds()
-        df['SPEED'] = df['DELTA_METERS'] / df['DELTA_SECONDS']
-        df['SPEED'] = df.groupby(['VEHICLE_ID', 'EVENT_NO_TRIP'])['SPEED'].bfill(limit=1)
+        # Rename columns to match DB schema
+        df.rename(columns={
+            'trip_number': 'trip_id',
+            'route_number': 'route_id',
+            'vehicle_number': 'vehicle_id'
+        }, inplace=True)
 
-        # Filter unrealistic speed post-transform
-        df = df[df['SPEED'] <= 40]
-
-        # Validate timestamps are increasing
-        invalid = set()
-        for (vehicle_id, trip_id), group in df.groupby(['VEHICLE_ID', 'EVENT_NO_TRIP']):
-            ts = group['tstamp'].values
-            for i in range(1, len(ts)):
-                if ts[i] <= ts[i - 1]:
-                    invalid.add(group.index[i])
-        if invalid:
-            df = df.drop(index=invalid)
-
-        return df
+        # Keep only relevant columns
+        return df[['trip_id', 'route_id', 'vehicle_id', 'service_key', 'direction']]

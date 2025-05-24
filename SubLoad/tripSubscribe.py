@@ -36,8 +36,8 @@ class DataSubscriber:
             except:
                 streaming_pull_future.cancel()
                 streaming_pull_future.result()
-            # finally:
-                # self._load_to_db()
+            finally:
+                self._load_to_db()
 
         print(f"{self.count} messages received")
 
@@ -46,10 +46,10 @@ class DataSubscriber:
         message_data = message.data.decode()
         if message_data:
             self._write_file(message_data)
-            # with self.lock:
-                # self.message_list.append(json.loads(message_data))
-                # if len(self.message_list) >= self.batch_size:
-                #     self._load_to_db()
+            with self.lock:
+                self.message_list.append(json.loads(message_data))
+                if len(self.message_list) >= self.batch_size:
+                    self._load_to_db()
         message.ack()
 
     def _write_file(self, message_data):
@@ -60,8 +60,6 @@ class DataSubscriber:
             file.write("\n")
 
     def _load_to_db(self, triggered_by_timer=False):
-        print("No Load yet")
-        '''
         with self.lock:
             if self.message_list:
                 df = pd.DataFrame(self.message_list)
@@ -70,7 +68,6 @@ class DataSubscriber:
                 self.message_list = []
         if triggered_by_timer:
             self._start_timer()
-            '''
 
     def _start_timer(self):
         print("Starting 20 minute timer...")

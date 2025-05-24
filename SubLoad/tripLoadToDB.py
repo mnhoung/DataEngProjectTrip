@@ -14,7 +14,6 @@ class DBLoader:
         self.dbpass = os.getenv("DBPASS")
         self.conn = None
         self.trip_table = 'trip'
-        self.breadcrumb_table = 'breadcrumb'
         self.validator = DataValidator()
         self.transformer = DataTransformer()
 
@@ -32,25 +31,18 @@ class DBLoader:
         cursor = self.conn.cursor()
 
         trip_csv = io.StringIO()
-        trip_df = df[['EVENT_NO_TRIP', 'VEHICLE_ID']].drop_duplicates()
-        trip_df['route_id'] = None
-        trip_df['service_key'] = None
-        trip_df['direction'] = None
-        trip_df[['EVENT_NO_TRIP', 'route_id', 'VEHICLE_ID', 'service_key', 'direction']].to_csv(trip_csv, index=False, header=False)
+        df.to_csv(trip_csv, index=False, header=False)
         trip_csv.seek(0)
+
         cursor.copy_from(trip_csv, self.trip_table, sep=",")
-
-        breadcrumb_csv = io.StringIO()
-        df[['tstamp', 'GPS_LATITUDE', 'GPS_LONGITUDE', 'SPEED', 'EVENT_NO_TRIP']].to_csv(breadcrumb_csv, index=False, header=False)
-        breadcrumb_csv.seek(0)
-        cursor.copy_from(breadcrumb_csv, self.breadcrumb_table, sep=",")
-
         cursor.close()
 
-        print(f"Loaded {len(trip_df)} trip records.")
-        print(f"Loaded {len(df)} breadcrumb records.")
-        
+        print(f"Loaded {len(df)} trip records into `{self.trip_table}`.")
+
     def run(self, df):
+        print("Running validation...")
         valid_df = self.validator.run_validations(df)
+        print("Running transformation...")
         transformed_df = self.transformer.transform(valid_df)
+        print("Loading to database...")
         self.load(transformed_df)
