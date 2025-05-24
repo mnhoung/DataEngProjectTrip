@@ -12,6 +12,7 @@ class DBLoader:
         self.dbname = 'postgres'
         self.dbuser = 'postgres'
         self.dbpass = os.getenv("DBPASS")
+        self.dbhost = os.getenv("DBHOST")
         self.conn = None
         self.trip_table = 'trip'
         self.validator = DataValidator()
@@ -19,7 +20,7 @@ class DBLoader:
 
     def connect(self):
         self.conn = psycopg2.connect(
-            host="localhost",
+            host=self.dbhost,
             database=self.dbname,
             user=self.dbuser,
             password=self.dbpass,
