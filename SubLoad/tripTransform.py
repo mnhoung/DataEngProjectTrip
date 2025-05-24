@@ -13,6 +13,9 @@ class DataTransformer:
             'S': 'Saturday',
             'U': 'Sunday'
         })
+        
+        # Cast direction to string to match PostgreSQL ENUM type
+        df['direction'] = df['direction'].astype(str)
 
         # Drop duplicate trip-vehicle pairs
         df = df.drop_duplicates(subset=['trip_number', 'vehicle_number'])

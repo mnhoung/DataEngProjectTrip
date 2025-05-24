@@ -1,6 +1,7 @@
 import psycopg2
 import io
 import os
+import csv
 from dotenv import load_dotenv
 from tripValidate import DataValidator
 from tripTransform import DataTransformer
@@ -32,7 +33,7 @@ class DBLoader:
         cursor = self.conn.cursor()
 
         trip_csv = io.StringIO()
-        df.to_csv(trip_csv, index=False, header=False)
+        df.to_csv(trip_csv, index=False, header=False, quoting=csv.QUOTE_NONE)
         trip_csv.seek(0)
 
         cursor.copy_from(trip_csv, self.trip_table, sep=",")
