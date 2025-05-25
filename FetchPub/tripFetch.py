@@ -2,6 +2,7 @@ import csv
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
 import pandas as pd
+import re
 
 class DataFetcher:
     def __init__(self, vehicle_csv_path):
@@ -25,39 +26,45 @@ class DataFetcher:
         try:
             with urlopen(url) as response:
                 soup = BeautifulSoup(response, "lxml")
-                rows = soup.find_all('tr')
+                all_dfs = []
                 
-                # clean the html
-                clean_list = []
-                for row in rows:
-                    row_td = row.find_all('td')
-                    str_cells = str(row_td)
-                    cleantext = BeautifulSoup(str_cells, "lxml").get_text()
-                    clean_list.append(cleantext)
+                # loop through each <h2> for every trip id
+                for h2 in soup.find_all('h2'):
+                    # extract trip ID from the <h2> text
+                    match = re.search(r'PDX_TRIP\s+(\d+)', h2.get_text())
+                    if not match:
+                        continue
+                    trip_id = match.group(1)
+
+                    # get the table after the <h2>
+                    table = h2.find_next('table')
+                    if not table:
+                        continue
                     
-                # change to df for easy transformation
-                df = pd.DataFrame(clean_list)
-                df = df[0].str.split(',', expand=True)
-                df[0] = df[0].str.strip('[')
-                df[23] = df[23].str.strip(']')
+                    # Parse rows
+                    rows = []
+                    for row_tr in table.find_all('tr')[1:]:  # skip header row
+                        row_td = row_tr.find_all('td')
+                        str_cells = str(row_td)
+                        cleantext = BeautifulSoup(str_cells, "lxml").get_text()
+                        rows.append(cleantext)
+                        
+                    # Create DataFrame for this table
+                    df = pd.DataFrame(rows)
+                    df = df[0].str.split(',', expand=True)
+                    df[0] = df[0].str.strip('[')
+                    df[23] = df[23].str.strip(']')
+
+                    # Parse header
+                    header = table.find_all('th')
+                    headers = [th.get_text(strip=True) for th in header]
+                    df.columns = headers
+
+                    df['trip_id'] = trip_id  # attach trip ID to each row
+                    all_dfs.append(df)
                 
-                # grab and transform the header labels
-                col_labels = soup.find_all('th')
-                all_header = []
-                col_str = str(col_labels)
-                cleantext2 = BeautifulSoup(col_str, "lxml").get_text()
-                all_header.append(cleantext2)
-                
-                # get rid of duplicate header labels
-                header_str = [th.get_text(strip=True) for th in col_labels]
-                header_list = list(dict.fromkeys(header_str))
-                
-                # add header list as to the table
-                df.columns = header_list
-                
-                # drop NaN columns
-                df = df.dropna(axis=0, how='any')
-                data = df.to_dict(orient="records")
+                combined_df = pd.concat(all_dfs, ignore_index=True)
+                data = combined_df.to_dict(orient="records")
                 
                 print(f"[✓] Fetched data for vehicle {vehicle_id}")
                 return data
