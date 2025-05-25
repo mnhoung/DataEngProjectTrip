@@ -9,10 +9,10 @@ class DataValidator:
         invalid_indices = set()
 
         # Clean string fields (remove leading/trailing whitespace)
-        df = df.applymap(lambda x: x.strip() if isinstance(x, str) else x)
+        df = df.map(lambda x: x.strip() if isinstance(x, str) else x)
 
         # Convert types
-        df['trip_number'] = pd.to_numeric(df['trip_number'], errors='coerce')
+        df['trip_id'] = pd.to_numeric(df['trip_id'], errors='coerce')
         df['route_number'] = pd.to_numeric(df['route_number'], errors='coerce')
         df['vehicle_number'] = pd.to_numeric(df['vehicle_number'], errors='coerce')
         df['direction'] = pd.to_numeric(df['direction'], errors='coerce')
@@ -30,7 +30,7 @@ class DataValidator:
         return df
 
     def _required_fields(self, df):
-        required = ['trip_number', 'route_number', 'vehicle_number', 'service_key', 'direction']
+        required = ['trip_id', 'route_number', 'vehicle_number', 'service_key', 'direction']
         return df[df[required].isnull().any(axis=1)].index
 
     def _direction_values(self, df):
@@ -41,4 +41,4 @@ class DataValidator:
         return df[~df['service_key'].isin(valid_keys)].index
 
     def _trip_id_uniqueness(self, df):
-        return df[df.duplicated(subset=['trip_number', 'vehicle_number'], keep=False)].index
+        return df[df.duplicated(subset=['trip_id', 'leave_time'], keep=False)].index

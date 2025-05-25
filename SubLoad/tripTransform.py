@@ -18,14 +18,14 @@ class DataTransformer:
         df['direction'] = df['direction'].astype(str)
 
         # Drop duplicate trip-vehicle pairs
-        df = df.drop_duplicates(subset=['trip_number', 'vehicle_number'])
+        # df = df.drop_duplicates(subset=['trip_number', 'vehicle_number'])
 
         # Rename columns to match DB schema
         df.rename(columns={
-            'trip_number': 'trip_id',
             'route_number': 'route_id',
             'vehicle_number': 'vehicle_id'
         }, inplace=True)
+        df = df.drop_duplicates(subset=['trip_id'])
 
         # Keep only relevant columns
         return df[['trip_id', 'route_id', 'vehicle_id', 'service_key', 'direction']]

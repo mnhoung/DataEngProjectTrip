@@ -6,3 +6,6 @@ __pycache__/
 *.pyc
 *.log
 .env
+loadToDBFromFile.py
+__init__.py
+htmlTOjson.py
